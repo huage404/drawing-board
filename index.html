@@ -14,6 +14,7 @@
         #canvas {
             display: block;
             cursor: pointer;
+            border: 1px solid #000;
         }
     </style>
 </head>
@@ -25,8 +26,10 @@
         // 获取 canvas 标签
         let canvas = document.getElementById('canvas');
         // 设置 canvas 的宽高为屏幕的宽高
-        canvas.width = document.documentElement.clientWidth;
-        canvas.height = document.documentElement.clientHeight;
+        let screenWidth = document.documentElement.clientWidth;
+        let screenHeight = document.documentElement.clientHeight;
+        canvas.width = screenWidth;
+        canvas.height = screenHeight;
         // 设置画布
         let ctx = canvas.getContext('2d');
         // 设置一个开关,要求鼠标必须在画布上点击触发事件移动，才会触发移动世界
@@ -34,18 +37,66 @@
         // 设置线条样式
         ctx.fillStyle = 'black';
         ctx.strokeStyle = 'none';
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 10;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         // 设置一个用来存储上一次移动位置的变量
         let lastCoord = [0, 0];
 
+        // 通过获取屏幕可视区域的宽度，来判断是用 touch 还是 mouse
+        if (screenWidth < 1000) {
+            canvas.ontouchstart = (e) => {
+                painting = true;
+                lastCoord = [e.touches[0].clientX, e.touches[0].clientY];
+            }
+            canvas.ontouchmove = (e) => {
+                if (painting) {
+                    ctx.beginPath();
+                    ctx.moveTo(lastCoord[0], lastCoord[1]);
+                    ctx.lineTo(e.touches[0].clientX, e.touches[0].clientY);
+                    ctx.stroke();
+                    ctx.closePath();
+                    lastCoord = [e.touches[0].clientX, e.touches[0].clientY];
+
+                }
+            }
+            canvas.ontouchend = () => {
+                console.log('end!')
+                painting = false;
+            }
+        } else {
+            canvas.onmousedown = (e) => {
+                painting = true;
+                lastCoord = [e.clientX, e.clientY];
+            }
+            canvas.onmousemove = (e) => {
+                if (painting) {
+                    ctx.beginPath();
+                    ctx.moveTo(lastCoord[0], lastCoord[1]);
+                    ctx.lineTo(e.clientX, e.clientY);
+                    ctx.stroke();
+                    ctx.closePath();
+                    lastCoord = [e.clientX, e.clientY];
+                }
+            }
+            canvas.onmouseup = () => {
+                console.log('end');
+                painting = false;
+            }
+        }
+
+
+
+
+
+
+
         // 设置鼠标按下事件
-        canvas.onmousedown = (e) => {
+        /* canvas.onmousedown = (e) => {
             painting = true;
             lastCoord = [e.clientX, e.clientY];
 
-        }
+        } */
         // 设置鼠标移动事件
         /* canvas.onmousemove = (e) => {
             if (painting) {
@@ -59,27 +110,22 @@
         } */
 
         // 通过 moveTo 和 lineTo 画线
-        canvas.onmousemove = (e) => {
-            if (painting) {
-                ctx.beginPath();
-                ctx.moveTo(lastCoord[0], lastCoord[1]);
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.stroke();
-                ctx.closePath();
-                lastCoord = [e.clientX, e.clientY];
-
-            }
-        }
-
-
-
-
+        /*  canvas.onmousemove = (e) => {
+             if (painting) {
+                 ctx.beginPath();
+                 ctx.moveTo(lastCoord[0], lastCoord[1]);
+                 ctx.lineTo(e.clientX, e.clientY);
+                 ctx.stroke();
+                 ctx.closePath();
+                 lastCoord = [e.clientX, e.clientY];
+             }
+         } */
 
         // 设置鼠标松开事件
-        canvas.onmouseup = () => {
+        /* canvas.onmouseup = () => {
             console.log('123');
             painting = false;
-        }
+        } */
 
 
 
